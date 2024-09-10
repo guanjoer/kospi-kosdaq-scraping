@@ -76,7 +76,11 @@ for i in range(1, 50 + 1):
     print("[+] 코스피 {} 페이지 완료".format(i))
 
 # 엑셀 파일로 저장
-file_name = f"public_companies_{formatted_date}.xlsx"
-final_data.to_excel(file_name, index=False)
+# file_name = f"public_companies_{formatted_date}.xlsx"
+# final_data.to_excel(file_name, index=False)
+
+# CSV
+file_name = f"public_companies_{formatted_date}.csv"
+final_data.to_csv(file_name, index=False, encoding='utf-8-sig')
 
 browser.quit()
