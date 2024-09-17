@@ -9,16 +9,20 @@ import json
 from datetime import datetime
 import streamlit as st
 
-# 날짜 형식 지정
+
 now = datetime.now()
 formatted_date = now.strftime("%Y_%m_%d")
-csv_file = f"public_companies_{formatted_date}.csv"
+directory = "./csv_files"
+csv_file = f"{directory}/public_companies_{formatted_date}.csv"
 json_file = f"data_{formatted_date}.json"
-default_json_file = "data.json"  # 기본 파일명
+default_json_file = "data.json"  # 기본 JSON 파일
 
-# 1. 기업 데이터 스크래핑 후 CSV 저장
+# 1. 기업 데이터 스크래핑 후 CSV 파일로 저장
 @st.cache_data
 def scrape_companies_data():
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
     browser = webdriver.Chrome()
     browser.maximize_window()
 
@@ -78,7 +82,7 @@ def csv_to_json(csv_f, json_f):
 
     print(f"CSV to JSON conversion completed! {json_f}")
 
-# 3. Streamlit을 통해 필터링 대시보드 보여주기
+# 3. Streamlit을 통해 필터링 된 기업 목록 보여주기
 def show_dashboard(json_file):
     def load_data(json_file):
         with open(json_file, 'r', encoding='utf-8') as f:
@@ -94,13 +98,11 @@ def show_dashboard(json_file):
 
     df_filtered = df.drop(['N', '현재가', '전일비', '액면가'], axis=1)
 
-    st.title('KOSPI & KOSDAQ 주식 필터링 대시보드')
-
     st.sidebar.header('필터링 기준 선택')
 
     roe_threshold = st.sidebar.slider('ROE (이상)', min_value=0, max_value=100, value=20, step=1)
     sales_growth_threshold = st.sidebar.slider('매출액 증가율 (이상)', min_value=0, max_value=100, value=25, step=1)
-    pbr_threshold = st.sidebar.slider('PBR (이하)', min_value=0.0, max_value=10.0, value=3.0, step=0.1)
+    pbr_threshold = st.sidebar.slider('PBR (이하)', min_value=0.0, max_value=15.0, value=3.0, step=0.1)
     per_threshold = st.sidebar.slider('PER (이하)', min_value=0, max_value=100, value=20, step=1)
 
     filtered_df = df_filtered.copy()
@@ -114,16 +116,23 @@ def show_dashboard(json_file):
     filtered_df['매출액증가율'] = filtered_df['매출액증가율'].apply(lambda x: f"{x}%" if pd.notnull(x) else "")
     filtered_df['시가총액'] = filtered_df['시가총액'].apply(lambda x: f"{int(float(x))}억" if pd.notnull(x) else "")
 
-    st.subheader('필터링된 데이터')
+    df['시가총액'] = df['시가총액'].apply(lambda x: f"{int(float(x))}억" if pd.notnull(x) else "")
+    df['ROE'] = df['ROE'].apply(lambda x: f"{x}%" if pd.notnull(x) else "")
+    df['유보율'] = df['유보율'].apply(lambda x: f"{x}%" if pd.notnull(x) else "")
+    df['매출액증가율'] = df['매출액증가율'].apply(lambda x: f"{x}%" if pd.notnull(x) else "")
+
+    st.subheader('필터링된 기업 목록')
     st.write(filtered_df)
 
-    st.subheader('전체 데이터')
-    st.write(df)
+    df_full = df.drop(['N', '현재가', '전일비', '액면가'], axis=1)
 
-# Streamlit 메인 함수
+    st.subheader('전체 기업 목록')
+    st.write(df_full)
+
+
 def main():
-    st.title("기업 재무 데이터 스크래핑 및 대시보드")
-    # 최신 데이터로 업데이트 버튼
+    st.title("코스피 & 코스닥 상장 기업 목록 필터링")
+
     if st.button('최신 데이터로 업데이트'):
         csv_file = scrape_companies_data()
         csv_to_json(csv_file, json_file)
@@ -132,7 +141,13 @@ def main():
 
     # 기본 JSON 파일 표시
     if os.path.exists(default_json_file):
-        st.info(f"기본 데이터를 표시하고 있습니다. 최신 데이터를 가져오려면 버튼을 눌러주세요.")
+        last_modified_time = datetime.fromtimestamp(os.path.getmtime(default_json_file))
+        
+        if last_modified_time.date() == datetime.now().date():
+            st.success("최신 데이터를 표시하고 있습니다.")
+        else:
+            st.info("기본 데이터를 표시하고 있습니다. 최신 데이터를 가져오려면 버튼을 눌러주세요.")
+
         show_dashboard(default_json_file)
     else:
         st.warning(f"{default_json_file} 파일이 존재하지 않습니다. 데이터를 스크래핑 해주세요.")
