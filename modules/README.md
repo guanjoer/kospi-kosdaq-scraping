@@ -5,7 +5,7 @@
 
 ---
 
-**2.** `filtering_wit_excel.py` 
+**2.** `filtering_with_excel.py` 
 
 
 **필터링 된 기업의 목록**만을 가져와 `xlsx` 파일에 저장합니다. 필터링 조건은 아래와 같습니다. 

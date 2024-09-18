@@ -131,7 +131,7 @@ def show_dashboard(json_file):
 
 
 def main():
-    st.title("KOSPI & KOSDAQ STOCK FILTERING LIST")
+    st.title("KOSPI & KOSDAQ STOCK DASHBOARD")
 
     if st.button('Update to Latest Data'):
         csv_file = scrape_companies_data()
@@ -144,9 +144,9 @@ def main():
         last_modified_time = datetime.fromtimestamp(os.path.getmtime(default_json_file))
         
         if last_modified_time.date() == datetime.now().date():
-            st.success("It is Currently Showing The Latest Data.")
+            st.success("It is Currently Displaying The Latest Data.")
         else:
-            st.info("Showing the default data. Hit the button to get the latest data.")
+            st.info("Displaying the default data. Hit the button to get the latest data.")
 
         show_dashboard(default_json_file)
     else:
