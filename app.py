@@ -121,36 +121,36 @@ def show_dashboard(json_file):
     df['유보율'] = df['유보율'].apply(lambda x: f"{x}%" if pd.notnull(x) else "")
     df['매출액증가율'] = df['매출액증가율'].apply(lambda x: f"{x}%" if pd.notnull(x) else "")
 
-    st.subheader('필터링된 기업 목록')
+    st.subheader('FILTERED STOCK LIST')
     st.write(filtered_df)
 
     df_full = df.drop(['N', '현재가', '전일비', '액면가'], axis=1)
 
-    st.subheader('전체 기업 목록')
+    st.subheader('ALL STOCK LIST')
     st.write(df_full)
 
 
 def main():
-    st.title("코스피 & 코스닥 상장 기업 목록 필터링")
+    st.title("KOSPI & KOSDAQ STOCK FILTERING LIST")
 
-    if st.button('최신 데이터로 업데이트'):
+    if st.button('Update to Latest Data'):
         csv_file = scrape_companies_data()
         csv_to_json(csv_file, json_file)
-        os.replace(json_file, default_json_file)  # 최신 데이터를 기본 데이터로 덮어쓰기
-        st.success(f"데이터가 최신 데이터로 업데이트되었습니다!")
+        os.replace(json_file, default_json_file)
+        st.success(f"Updated with The Latest Data!")
 
-    # 기본 JSON 파일 표시
+    # Display default JSON file(data.json)
     if os.path.exists(default_json_file):
         last_modified_time = datetime.fromtimestamp(os.path.getmtime(default_json_file))
         
         if last_modified_time.date() == datetime.now().date():
-            st.success("최신 데이터를 표시하고 있습니다.")
+            st.success("It is Currently Showing The Latest Data.")
         else:
-            st.info("기본 데이터를 표시하고 있습니다. 최신 데이터를 가져오려면 버튼을 눌러주세요.")
+            st.info("Showing the default data. Hit the button to get the latest data.")
 
         show_dashboard(default_json_file)
     else:
-        st.warning(f"{default_json_file} 파일이 존재하지 않습니다. 데이터를 스크래핑 해주세요.")
+        st.warning(f"The {default_json_file} file does not exist, please scrape the data.")
 
 if __name__ == "__main__":
     main()
