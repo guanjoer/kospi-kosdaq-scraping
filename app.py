@@ -19,7 +19,7 @@ default_json_file = "data.json"  # 기본 JSON 파일
 
 # 1. 기업 데이터 스크래핑 후 CSV 파일로 저장
 @st.cache_data
-def scrape_companies_data():
+def scrape_companies_data(_progress_bar):
     if not os.path.exists(directory):
         os.makedirs(directory)
 
@@ -49,7 +49,10 @@ def scrape_companies_data():
 
     final_data = pd.DataFrame()
 
-    for i in range(1, 40 + 1):
+    total_pages_kosdaq = 36
+    total_pages_kospi = 46
+
+    for i in range(1, total_pages_kosdaq + 1):
         browser.get(url_kosdaq + str(i))
         data_frame = pd.read_html(StringIO(browser.page_source))[1]
         data_frame.dropna(axis='index', how='all', inplace=True)
@@ -57,8 +60,9 @@ def scrape_companies_data():
         if len(data_frame) == 0:
             break
         final_data = pd.concat([final_data, data_frame], ignore_index=True)
+        _progress_bar.progress(i / (total_pages_kosdaq + total_pages_kospi))
 
-    for i in range(1, 50 + 1):
+    for i in range(1, total_pages_kospi + 1):
         browser.get(url_kospi + str(i))
         data_frame = pd.read_html(StringIO(browser.page_source))[1]
         data_frame.dropna(axis='index', how='all', inplace=True)
@@ -66,6 +70,7 @@ def scrape_companies_data():
         if len(data_frame) == 0:
             break
         final_data = pd.concat([final_data, data_frame], ignore_index=True)
+        _progress_bar.progress((i + total_pages_kosdaq ) / (total_pages_kosdaq + total_pages_kospi))
 
     final_data.to_csv(csv_file, index=False, encoding='utf-8-sig')
     browser.quit()
@@ -133,8 +138,10 @@ def show_dashboard(json_file):
 def main():
     st.title("KOSPI & KOSDAQ STOCK DASHBOARD")
 
+
     if st.button('Update to Latest Data'):
-        csv_file = scrape_companies_data()
+        progress_bar = st.progress(0)
+        csv_file = scrape_companies_data(progress_bar)
         csv_to_json(csv_file, json_file)
         os.replace(json_file, default_json_file)
         st.success(f"Updated with The Latest Data!")
