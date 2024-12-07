@@ -106,7 +106,7 @@ def show_dashboard(json_file):
     st.sidebar.header('필터링 기준 선택')
 
     roe_threshold = st.sidebar.slider('ROE (이상)', min_value=0, max_value=100, value=20, step=1)
-    sales_growth_threshold = st.sidebar.slider('매출액 증가율 (이상)', min_value=0, max_value=100, value=25, step=1)
+    sales_growth_threshold = st.sidebar.slider('매출액 증가율 (이상)', min_value=0, max_value=100, value=20, step=1)
     pbr_threshold = st.sidebar.slider('PBR (이하)', min_value=0.0, max_value=15.0, value=3.0, step=0.1)
     per_threshold = st.sidebar.slider('PER (이하)', min_value=0, max_value=100, value=20, step=1)
 
