@@ -36,7 +36,7 @@ def scrape_companies_data(_progress_bar):
         if check_box.is_selected():
             check_box.click()
 
-    want_to_select = ["시가총액", "PER", "ROE", "PBR", "매출액증가율", "매출액"]
+    want_to_select = ["시가총액", "PER", "ROE", "PBR", "매출액증가율", "유보율"]
     for check_box in check_boxes:
         parent = check_box.find_element(By.XPATH, "..")
         label = parent.find_element(By.TAG_NAME, "label")
@@ -96,60 +96,40 @@ def show_dashboard(json_file):
 
     df = load_data(json_file)
 
-    # 억 제거
-    df['시가총액'] = df['시가총액'].astype(str).str.replace('억', '', regex=False)
-
-    # 숫자형으로 변환
     df['ROE'] = pd.to_numeric(df['ROE'], errors='coerce')
     df['PBR'] = pd.to_numeric(df['PBR'], errors='coerce')
     df['PER'] = pd.to_numeric(df['PER'], errors='coerce')
-    df['매출액'] = pd.to_numeric(df['매출액'], errors='coerce')
-    df['시가총액'] = pd.to_numeric(df['시가총액'], errors='coerce')
-
-    # PSR 계산
-    df['PSR'] = df['시가총액'] / df['매출액']
+    df['유보율'] = pd.to_numeric(df['유보율'], errors='coerce')
 
     df_filtered = df.drop(['N', '현재가', '전일비', '액면가'], axis=1)
 
     st.sidebar.header('필터링 기준 선택')
 
-    # 필터링 기준
     roe_threshold = st.sidebar.slider('ROE (이상)', min_value=0, max_value=100, value=20, step=1)
     sales_growth_threshold = st.sidebar.slider('매출액 증가율 (이상)', min_value=0, max_value=100, value=20, step=1)
     pbr_threshold = st.sidebar.slider('PBR (이하)', min_value=0.0, max_value=15.0, value=3.0, step=0.1)
     per_threshold = st.sidebar.slider('PER (이하)', min_value=0, max_value=100, value=20, step=1)
-    psr_threshold = st.sidebar.slider('PSR (이하)', min_value=0, max_value=50, value=3, step=1)
 
-    # 필터링 조건 적용
     filtered_df = df_filtered.copy()
     filtered_df = filtered_df[filtered_df['ROE'] >= roe_threshold]
     filtered_df = filtered_df[filtered_df['매출액증가율'].str.rstrip('%').astype(float) >= sales_growth_threshold]
     filtered_df = filtered_df[filtered_df['PBR'] <= pbr_threshold]
     filtered_df = filtered_df[filtered_df['PER'] <= per_threshold]
-    filtered_df = filtered_df[filtered_df['PSR'] <= psr_threshold]
 
-    # 단위, 반올림 추가
     filtered_df['ROE'] = filtered_df['ROE'].apply(lambda x: f"{x}%" if pd.notnull(x) else "")
+    filtered_df['유보율'] = filtered_df['유보율'].apply(lambda x: f"{x}%" if pd.notnull(x) else "")
     filtered_df['매출액증가율'] = filtered_df['매출액증가율'].apply(lambda x: f"{x}%" if pd.notnull(x) else "")
-    filtered_df['시가총액'] = filtered_df['시가총액'].apply(lambda x: f"{int(x)}억" if pd.notnull(x) else "")
-    filtered_df['PSR'] = filtered_df['PSR'].apply(lambda x: f"{round(x, 2)}" if pd.notnull(x) else "")
+    filtered_df['시가총액'] = filtered_df['시가총액'].apply(lambda x: f"{int(float(x))}억" if pd.notnull(x) else "")
 
-
+    df['시가총액'] = df['시가총액'].apply(lambda x: f"{int(float(x))}억" if pd.notnull(x) else "")
     df['ROE'] = df['ROE'].apply(lambda x: f"{x}%" if pd.notnull(x) else "")
+    df['유보율'] = df['유보율'].apply(lambda x: f"{x}%" if pd.notnull(x) else "")
     df['매출액증가율'] = df['매출액증가율'].apply(lambda x: f"{x}%" if pd.notnull(x) else "")
-
 
     st.subheader('FILTERED STOCK LIST')
     st.write(filtered_df)
 
-
     df_full = df.drop(['N', '현재가', '전일비', '액면가'], axis=1)
-
-    # 전체 목록
-    df_full['시가총액'] = df_full['시가총액'].apply(lambda x: f"{int(x)}억" if pd.notnull(x) else "")
-    df_full['ROE'] = df_full['ROE'].apply(lambda x: f"{x}%" if pd.notnull(x) else "")
-    df_full['매출액증가율'] = df_full['매출액증가율'].apply(lambda x: f"{x}%" if pd.notnull(x) else "")
-    df_full['PSR'] = df_full['PSR'].apply(lambda x: f"{round(x, 2)}" if pd.notnull(x) else "")
 
     st.subheader('ALL STOCK LIST')
     st.write(df_full)
