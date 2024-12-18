@@ -132,6 +132,7 @@ def show_dashboard(json_file):
     filtered_df['ROE'] = filtered_df['ROE'].apply(lambda x: f"{x}%" if pd.notnull(x) else "")
     filtered_df['매출액증가율'] = filtered_df['매출액증가율'].apply(lambda x: f"{x}%" if pd.notnull(x) else "")
     filtered_df['시가총액'] = filtered_df['시가총액'].apply(lambda x: f"{int(x)}억" if pd.notnull(x) else "")
+    filtered_df['매출액'] = filtered_df['매출액'].apply(lambda x: f"{int(x)}억" if pd.notnull(x) else "")
     filtered_df['PSR'] = filtered_df['PSR'].apply(lambda x: f"{round(x, 2)}" if pd.notnull(x) else "")
 
 
@@ -147,6 +148,7 @@ def show_dashboard(json_file):
 
     # 전체 목록
     df_full['시가총액'] = df_full['시가총액'].apply(lambda x: f"{int(x)}억" if pd.notnull(x) else "")
+    df_full['매출액'] = df_full['매출액'].apply(lambda x: f"{int(x)}억" if pd.notnull(x) else "")
     df_full['ROE'] = df_full['ROE'].apply(lambda x: f"{x}%" if pd.notnull(x) else "")
     df_full['매출액증가율'] = df_full['매출액증가율'].apply(lambda x: f"{x}%" if pd.notnull(x) else "")
     df_full['PSR'] = df_full['PSR'].apply(lambda x: f"{round(x, 2)}" if pd.notnull(x) else "")
