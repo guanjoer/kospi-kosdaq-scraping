@@ -118,7 +118,7 @@ def show_dashboard(json_file):
     sales_growth_threshold = st.sidebar.slider('매출액 증가율 (이상)', min_value=0, max_value=100, value=20, step=1)
     pbr_threshold = st.sidebar.slider('PBR (이하)', min_value=0.0, max_value=15.0, value=3.0, step=0.1)
     per_threshold = st.sidebar.slider('PER (이하)', min_value=0, max_value=100, value=20, step=1)
-    psr_threshold = st.sidebar.slider('PSR (이하)', min_value=0, max_value=50, value=3, step=1)
+    psr_threshold = st.sidebar.slider('PSR (이하)', min_value=0, max_value=50, value=3.0, step=1)
 
     # 필터링 조건 적용
     filtered_df = df_filtered.copy()
