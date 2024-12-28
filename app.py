@@ -15,9 +15,9 @@ formatted_date = now.strftime("%Y_%m_%d")
 directory = "./csv_files"
 csv_file = f"{directory}/public_companies_{formatted_date}.csv"
 json_file = f"data_{formatted_date}.json"
-default_json_file = "data.json"  # 기본 JSON 파일
+default_json_file = "data.json"
 
-# 1. 기업 데이터 스크래핑 후 CSV 파일로 저장
+# Scrape stock data & Save as csv
 @st.cache_data
 def scrape_companies_data(_progress_bar):
     if not os.path.exists(directory):
@@ -76,7 +76,7 @@ def scrape_companies_data(_progress_bar):
     browser.quit()
     return csv_file
 
-# 2. CSV 파일을 JSON으로 변환
+# Convert CSV to JSON
 def csv_to_json(csv_f, json_f):
     with open(csv_f, mode='r', encoding='utf-8-sig') as f:
         csv_reader = csv.DictReader(f)
@@ -87,7 +87,7 @@ def csv_to_json(csv_f, json_f):
 
     print(f"CSV to JSON conversion completed! {json_f}")
 
-# 3. Streamlit을 통해 필터링 된 기업 목록 보여주기
+# Display filtered stock list through Streamlit
 def show_dashboard(json_file):
     def load_data(json_file):
         with open(json_file, 'r', encoding='utf-8') as f:
@@ -116,7 +116,7 @@ def show_dashboard(json_file):
     # 필터링 기준
     roe_threshold = st.sidebar.slider('ROE (이상)', min_value=0, max_value=100, value=20, step=1)
     sales_growth_threshold = st.sidebar.slider('매출액 증가율 (이상)', min_value=0, max_value=100, value=20, step=1)
-    pbr_threshold = st.sidebar.slider('PBR (이하)', min_value=0.0, max_value=15.0, value=3.0, step=0.1)
+    pbr_threshold = st.sidebar.slider('PBR (이하)', min_value=0.0, max_value=15.0, value=4.0, step=0.1)
     per_threshold = st.sidebar.slider('PER (이하)', min_value=0, max_value=100, value=20, step=1)
     psr_threshold = st.sidebar.slider('PSR (이하)', min_value=0, max_value=50, value=3, step=1)
 
